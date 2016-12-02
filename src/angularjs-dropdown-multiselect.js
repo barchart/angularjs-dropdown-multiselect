@@ -182,7 +182,7 @@ directiveModule.directive('ngDropdownMultiselect', ['$filter', '$document', '$co
 			};
 
 			angular.extend($scope.settings, $scope.extraSettings || []);
-			angular.extend($scope.externalEvents, $scope.events || $scope.$parent.events || []);
+			angular.extend($scope.externalEvents, $scope.events || []);
 			angular.extend($scope.texts, $scope.translationTexts);
 
 			$scope.singleSelection = $scope.settings.selectionLimit === 1;
@@ -336,7 +336,9 @@ directiveModule.directive('ngDropdownMultiselect', ['$filter', '$document', '$co
 					clearObject($scope.selectedModel);
 					angular.extend($scope.selectedModel, finalObj);
 					if (fireSelectionChange) {
-						$scope.externalEvents.onItemSelect(finalObj);
+						if ($scope.events.onItemSelect(finalObj)) {
+							$scope.events.onItemSelect(finalObj);
+						}
 					}
 					if ($scope.settings.closeOnSelect || $scope.settings.closeOnDeselect) $scope.close();
 				} else {
@@ -346,12 +348,16 @@ directiveModule.directive('ngDropdownMultiselect', ['$filter', '$document', '$co
 
 					if (!dontRemove && exists) {
 						$scope.selectedModel.splice(findIndex($scope.selectedModel, findObj), 1);
-						$scope.externalEvents.onItemDeselect(findObj);
+						if ($scope.events.onItemDeselect(findObj)) {
+							$scope.events.onItemDeselect(findObj);
+						}
 						if ($scope.settings.closeOnDeselect) $scope.close();
 					} else if (!exists && ($scope.settings.selectionLimit === 0 || $scope.selectedModel.length < $scope.settings.selectionLimit)) {
 						$scope.selectedModel.push(finalObj);
 						if (fireSelectionChange) {
-							$scope.externalEvents.onItemSelect(finalObj);
+							if ($scope.events.onItemSelect(finalObj)) {
+								$scope.events.onItemSelect(finalObj);
+							}
 						}
 						if ($scope.settings.closeOnSelect) $scope.close();
 						if ($scope.settings.selectionLimit > 0 && $scope.selectedModel.length === $scope.settings.selectionLimit) {
